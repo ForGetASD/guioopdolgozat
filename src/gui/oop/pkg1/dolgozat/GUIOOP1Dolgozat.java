@@ -1,7 +1,6 @@
 package gui.oop.pkg1.dolgozat;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
@@ -42,7 +41,8 @@ public class GUIOOP1Dolgozat {
     private String kod = "";
     private JCheckBox jcbKev;
     private JPanel pnlPin;
-    
+    private JLabel lblText;
+
     public GUIOOP1Dolgozat(){
         form();
     }
@@ -71,6 +71,7 @@ public class GUIOOP1Dolgozat {
         menuBar.add(mnuJtk);
         
         JMenuItem mnuPrgUjra = new JMenuItem("Újra");
+        mnuPrgUjra.addActionListener(new MnuUjraListener());
         mnuPrg.add(mnuPrgUjra);
         
         mnuPrg.addSeparator();
@@ -133,7 +134,7 @@ public class GUIOOP1Dolgozat {
         
         jcbKev = new JCheckBox("kever");
         jcbKev.addActionListener(new kever());
-        JLabel lblText = new JLabel("kód: ");
+        lblText = new JLabel("kód: ");
         jtfKod = new JTextField();
         
         pnlBea.add(jcbKev);
@@ -208,7 +209,7 @@ public class GUIOOP1Dolgozat {
     class kever implements ActionListener{
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e){ 
             
             if (jcbKev.isSelected()) {
                 //System.out.println("Kiválasztva");
@@ -249,8 +250,21 @@ public class GUIOOP1Dolgozat {
         
     }
     
-    private void ujJatek(){
+    class MnuUjraListener implements ActionListener{
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ujJatek();
+        }
+        
+    }
     
+    private void ujJatek(){
+        jtfKod.setText("");
+        pnlPin.removeAll();
+        gombok();
+        jcbKev.setSelected(false);
+        frame.validate();
     }
     
     private void gombBerak(){
