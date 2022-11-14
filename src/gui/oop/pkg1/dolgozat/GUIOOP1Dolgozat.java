@@ -1,10 +1,19 @@
 package gui.oop.pkg1.dolgozat;
 
+import java.awt.Color;
+import java.util.Arrays;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -12,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -25,8 +35,13 @@ public class GUIOOP1Dolgozat {
     }
     
     private static final int GOMB_DB = 10;
-    JFrame frame = new JFrame();
+    private JFrame frame = new JFrame();
+    private JButton gomb1, gomb2, gomb3, gomb4, gomb5, gomb6, gomb7, gomb8, gomb9, gomb0;
     private JButton[] gombok;
+    private JTextField jtfKod;
+    private String kod = "";
+    private JCheckBox jcbKev;
+    private JPanel pnlPin;
     
     public GUIOOP1Dolgozat(){
         form();
@@ -34,12 +49,13 @@ public class GUIOOP1Dolgozat {
     
     private void form(){
         frame = new JFrame("GUI- OOP 1. dolgozat");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new FormWindowAdapter());
         
         Dimension kep = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setBounds(kep.width/2-205, kep.height/2-175, 410, 350);
         
-        gombok();
+        
         frame.setJMenuBar(menuIni());
         kinezetIni();
         frame.setVisible(true);
@@ -60,6 +76,7 @@ public class GUIOOP1Dolgozat {
         mnuPrg.addSeparator();
         
         JMenuItem mnuPrgKilep = new JMenuItem("Kilépés");
+        mnuPrgKilep.addActionListener(new MnuKilepListener());
         mnuPrg.add(mnuPrgKilep);
         
         JMenuItem mnuJtkViz = new JMenuItem("Vízszintes");
@@ -88,7 +105,7 @@ public class GUIOOP1Dolgozat {
         
         JTabbedPane pnlTab = new JTabbedPane();
         
-        JPanel pnlPin = pnlPinIni();
+        pnlPin = pnlPinIni();
         JPanel pnlBea = pnlBeaIni();
         
         pnlBej.add(pnlPin);
@@ -102,12 +119,9 @@ public class GUIOOP1Dolgozat {
     
     private JPanel pnlPinIni(){
         LayoutManager lymPin = new GridLayout(4, 3);
-        JPanel pnlPin = new JPanel(lymPin);
+        pnlPin = new JPanel(lymPin);
         pnlPin.setBorder(new TitledBorder("Pin kód"));
-        
-        for (JButton g : gombok) {
-            pnlPin.add(g);
-        }
+        gombok();
         
         return pnlPin;
     }
@@ -117,9 +131,10 @@ public class GUIOOP1Dolgozat {
         JPanel pnlBea = new JPanel(lymBea);
         pnlBea.setBorder(new TitledBorder("Beállítás"));
         
-        JCheckBox jcbKev = new JCheckBox("kever");
+        jcbKev = new JCheckBox("kever");
+        jcbKev.addActionListener(new kever());
         JLabel lblText = new JLabel("kód: ");
-        JTextField jtfKod = new JTextField();
+        jtfKod = new JTextField();
         
         pnlBea.add(jcbKev);
         pnlBea.add(lblText);
@@ -130,26 +145,117 @@ public class GUIOOP1Dolgozat {
     
     private void gombok(){
         gombok = new JButton[GOMB_DB];
+
         
-        JButton gomb1 = new JButton("1");
+        gomb1 = new JButton("1");
         gombok[0] = gomb1;
-        JButton gomb2 = new JButton("2");
+        gomb2 = new JButton("2");
         gombok[1] = gomb2;
-        JButton gomb3 = new JButton("3");
+        gomb3 = new JButton("3");
         gombok[2] = gomb3;
-        JButton gomb4 = new JButton("4");
+        gomb4 = new JButton("4");
         gombok[3] = gomb4;
-        JButton gomb5 = new JButton("5");
+        gomb5 = new JButton("5");
         gombok[4] = gomb5;
-        JButton gomb6 = new JButton("6");
+        gomb6 = new JButton("6");
         gombok[5] = gomb6;
-        JButton gomb7 = new JButton("7");
+        gomb7 = new JButton("7");
         gombok[6] = gomb7;
-        JButton gomb8 = new JButton("8");
+        gomb8 = new JButton("8");
         gombok[7] = gomb8;
-        JButton gomb9 = new JButton("9");
+        gomb9 = new JButton("9");
         gombok[8] = gomb9;
-        JButton gomb0 = new JButton("0");
+        gomb0 = new JButton("0");
         gombok[9] = gomb0;
+        for (JButton g : gombok) {
+            g.addActionListener(new btnAction());
+        }   
+        gombBerak();
+        frame.validate();
+    }
+    
+    class btnAction implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton gomb = (JButton)e.getSource();
+            String felirat = gomb.getActionCommand();
+            gomb.setBackground(Color.CYAN);
+            kod += felirat;
+            jtfKod.setText(kod);
+            System.out.println(kod);
+            
+        }
+        
+    }
+    class FormWindowAdapter extends WindowAdapter{
+        //névtelen belső osztállyal használható (ld. előző megoldás), lambdával nem
+        @Override
+        public void windowClosing(WindowEvent e) {
+            //ALT + INSERT
+            super.windowClosing(e);
+            kilepes();
+        }
+        
+    }
+    private void kilepes(){
+        int valasz = JOptionPane.showConfirmDialog(frame, "Kilépés", "Biztos kilép?", JOptionPane.YES_NO_OPTION);
+        if(valasz == JOptionPane.YES_OPTION){
+            System.exit(valasz);
+        }
+    }
+    
+    class kever implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
+            if (jcbKev.isSelected()) {
+                //System.out.println("Kiválasztva");
+                List<Integer> szamok = new ArrayList<>();
+                for (int i = 0; i < GOMB_DB; i++) {
+                    szamok.add(i);
+                }
+                
+                Collections.shuffle(szamok);
+                gombok[szamok.get(0)] = gomb1;
+                gombok[szamok.get(1)] = gomb2;
+                gombok[szamok.get(2)] = gomb3;
+                gombok[szamok.get(3)] = gomb4;
+                gombok[szamok.get(4)] = gomb5;
+                gombok[szamok.get(5)] = gomb6;
+                gombok[szamok.get(6)] = gomb7;
+                gombok[szamok.get(7)] = gomb8;
+                gombok[szamok.get(8)] = gomb9;
+                gombok[szamok.get(9)] = gomb0;
+                //System.out.println(szamok.get(0));
+                gombBerak();
+                
+                frame.validate();
+            }else if(!(jcbKev.isSelected())){
+                for (JButton g : gombok) {
+                    pnlPin.remove(g);
+                }
+                gombok();
+            }
+        } 
+    }
+    class MnuKilepListener implements ActionListener{
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            kilepes();
+        }
+        
+    }
+    
+    private void ujJatek(){
+    
+    }
+    
+    private void gombBerak(){
+         for (JButton g : gombok) {
+            pnlPin.add(g);
+        }
     }
 }
